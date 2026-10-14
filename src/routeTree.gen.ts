@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as ResultRouteImport } from './routes/result'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,9 +31,19 @@ const FeaturesRoute = FeaturesRouteImport.update({
   path: '/features',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultRoute = ResultRouteImport.update({
+  id: '/result',
+  path: '/result',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -39,34 +51,50 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
+  '/history': typeof HistoryRoute
   '/pricing': typeof PricingRoute
+  '/result': typeof ResultRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
+  '/history': typeof HistoryRoute
   '/pricing': typeof PricingRoute
+  '/result': typeof ResultRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
+  '/history': typeof HistoryRoute
   '/pricing': typeof PricingRoute
+  '/result': typeof ResultRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/contact' | '/features' | '/pricing'
+  fullPaths:
+    '/' | '/contact' | '/features' | '/history' | '/pricing' | '/result'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/contact' | '/features' | '/pricing'
-  id: '__root__' | '/' | '/contact' | '/features' | '/pricing'
+  to: '/' | '/contact' | '/features' | '/history' | '/pricing' | '/result'
+  id:
+    | '__root__'
+    | '/'
+    | '/contact'
+    | '/features'
+    | '/history'
+    | '/pricing'
+    | '/result'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
   FeaturesRoute: typeof FeaturesRoute
+  HistoryRoute: typeof HistoryRoute
   PricingRoute: typeof PricingRoute
+  ResultRoute: typeof ResultRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -92,11 +120,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/result': {
+      id: '/result'
+      path: '/result'
+      fullPath: '/result'
+      preLoaderRoute: typeof ResultRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -106,7 +148,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
   FeaturesRoute: FeaturesRoute,
+  HistoryRoute: HistoryRoute,
   PricingRoute: PricingRoute,
+  ResultRoute: ResultRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
