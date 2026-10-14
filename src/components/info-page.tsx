@@ -1,0 +1,9 @@
+import { Link } from '@tanstack/react-router';
+import { ArrowRight, FileScan, Languages, Sheet } from 'lucide-react';
+import { AyingShell, useLanguage } from './aying-shell';
+import { Button } from './ui/button';
+export function InfoPage({ kind }: { kind: 'features' | 'pricing' | 'contact' }) {
+  const { language } = useLanguage(); const zh = language === 'zh';
+  const title = kind === 'features' ? (zh ? '从报价单，到清晰的数据。' : 'От документа к точным данным.') : kind === 'pricing' ? (zh ? '价格方案' : 'Тарифы') : (zh ? '联系 AyingAI' : 'Связаться с AyingAI');
+  return <AyingShell><main className="info-page"><span className="eyebrow">AYINGAI / {kind.toUpperCase()}</span><h1>{title}</h1>{kind === 'features' ? <div className="info-grid">{[{ Icon: FileScan, title: zh ? '智能识别' : 'Распознавание', text: zh ? '图片、扫描件和 PDF 中的客户、产品与报价信息。' : 'Компании, товары и цены из изображений и PDF.' }, { Icon: Languages, title: zh ? '中俄双语' : 'Китайский и русский', text: zh ? '保留原始公司与产品名称，双语界面自由切换。' : 'Оригинальные названия компаний и товаров, два языка интерфейса.' }, { Icon: Sheet, title: zh ? 'Excel 导出' : 'Экспорт в Excel', text: zh ? '将识别结果导出为包含产品和注意事项的 Excel 文件。' : 'Товары и примечания в одном файле Excel.' }].map(({ Icon, title, text }) => <article key={title}><Icon /><h2>{title}</h2><p>{text}</p></article>)}</div> : <div className="info-copy"><p>{kind === 'pricing' ? (zh ? '正式价格方案尚未公布。' : 'Официальные тарифы пока не опубликованы.') : (zh ? '联系渠道即将公布。' : 'Контактная информация появится скоро.')}</p><p>{zh ? '现在可以先体验报价单整理。' : 'Пока вы можете попробовать обработку предложений.'}</p></div>}<Button asChild size="lg"><Link to="/">{zh ? '整理报价单' : 'Обработать предложение'}<ArrowRight /></Link></Button></main></AyingShell>;
+}
