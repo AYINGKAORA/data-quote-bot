@@ -1,0 +1,3 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { InfoPage } from '@/components/info-page';
+export const Route = createFileRoute('/features')({ head: () => ({ meta: [{ title: '功能 · AyingAI' }, { name: 'description', content: 'AyingAI 图片与 PDF 报价单识别、中俄双语与 Excel 导出。' }, { property: 'og:title', content: '功能 · AyingAI' }, { property: 'og:description', content: '智能整理图片与 PDF 报价单。' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }), component: () => <InfoPage kind="features" /> });

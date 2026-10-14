@@ -1,0 +1,3 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { InfoPage } from '@/components/info-page';
+export const Route = createFileRoute('/pricing')({ head: () => ({ meta: [{ title: '价格 · AyingAI' }, { name: 'description', content: 'AyingAI 报价单工具价格方案。' }, { property: 'og:title', content: '价格 · AyingAI' }, { property: 'og:description', content: '了解 AyingAI 价格方案。' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }), component: () => <InfoPage kind="pricing" /> });

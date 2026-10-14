@@ -8,3 +8,7 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Shared bilingual navigation uses AyingShell and LanguageProvider; keep language state consistent across content routes.
+- Quote extraction uses a server function and streaming AI Responses in server-only helpers to keep credentials private.
+- Generate Excel in the browser from recognized data; preserve source totals and do not invent missing numeric values.
