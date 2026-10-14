@@ -8,7 +8,7 @@ describe('quote processing', () => {
   });
   it('preserves missing values and original totals', () => {
     const quote = quoteSchema.parse({ company: 'Example', currency: 'USD', products: [{ name: 'Bottle', specification: '500ml', quantity: 20, unitPrice: 12.5, total: 250 }, { name: 'Unknown price', specification: '', quantity: null, unitPrice: null, total: null }], notes: [] });
-    expect(quote.products[0].total).toBe(250);
-    expect(quote.products[1].unitPrice).toBeNull();
+    expect(quote.products[0]?.total).toBe(250);
+    expect(quote.products[1]?.unitPrice).toBeNull();
   });
 });
