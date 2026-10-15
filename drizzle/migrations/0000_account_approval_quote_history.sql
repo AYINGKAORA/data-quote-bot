@@ -1,0 +1,38 @@
+CREATE TYPE public.app_role AS ENUM ('admin','user');
+CREATE TABLE public.profiles (id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE, email text NOT NULL DEFAULT '', display_name text NOT NULL DEFAULT '', avatar_url text NOT NULL DEFAULT '', created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT ON public.profiles TO authenticated; GRANT UPDATE(display_name,avatar_url) ON public.profiles TO authenticated; GRANT ALL ON public.profiles TO service_role;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+CREATE TABLE public.user_roles (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE, role public.app_role NOT NULL, UNIQUE(user_id,role));
+GRANT SELECT ON public.user_roles TO authenticated; GRANT ALL ON public.user_roles TO service_role;
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+CREATE FUNCTION public.has_role(_user_id uuid,_role public.app_role) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=_user_id AND role=_role) $$;
+REVOKE ALL ON FUNCTION public.has_role(uuid,public.app_role) FROM PUBLIC; GRANT EXECUTE ON FUNCTION public.has_role(uuid,public.app_role) TO authenticated;
+CREATE POLICY own_roles ON public.user_roles FOR SELECT TO authenticated USING(user_id=auth.uid());
+CREATE POLICY profile_read ON public.profiles FOR SELECT TO authenticated USING(id=auth.uid() OR public.has_role(auth.uid(),'admin'));
+CREATE POLICY profile_update ON public.profiles FOR UPDATE TO authenticated USING(id=auth.uid()) WITH CHECK(id=auth.uid());
+CREATE TABLE public.account_access (user_id uuid PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE, approved boolean NOT NULL DEFAULT false);
+GRANT SELECT,UPDATE ON public.account_access TO authenticated; GRANT ALL ON public.account_access TO service_role;
+ALTER TABLE public.account_access ENABLE ROW LEVEL SECURITY;
+CREATE POLICY access_read ON public.account_access FOR SELECT TO authenticated USING(user_id=auth.uid() OR public.has_role(auth.uid(),'admin'));
+CREATE POLICY access_update ON public.account_access FOR UPDATE TO authenticated USING(public.has_role(auth.uid(),'admin')) WITH CHECK(public.has_role(auth.uid(),'admin'));
+CREATE FUNCTION public.account_is_approved(_user_id uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM public.account_access WHERE user_id=_user_id AND approved) $$;
+REVOKE ALL ON FUNCTION public.account_is_approved(uuid) FROM PUBLIC; GRANT EXECUTE ON FUNCTION public.account_is_approved(uuid) TO authenticated;
+CREATE TABLE public.quote_records (id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,date timestamptz NOT NULL DEFAULT now(),filename text NOT NULL,quote jsonb NOT NULL,saved boolean NOT NULL DEFAULT false);
+GRANT SELECT,INSERT,UPDATE ON public.quote_records TO authenticated; GRANT ALL ON public.quote_records TO service_role;
+ALTER TABLE public.quote_records ENABLE ROW LEVEL SECURITY;
+CREATE POLICY quotes_read ON public.quote_records FOR SELECT TO authenticated USING(user_id=auth.uid() AND public.account_is_approved(auth.uid()));
+CREATE POLICY quotes_insert ON public.quote_records FOR INSERT TO authenticated WITH CHECK(user_id=auth.uid() AND public.account_is_approved(auth.uid()));
+CREATE POLICY quotes_update ON public.quote_records FOR UPDATE TO authenticated USING(user_id=auth.uid() AND public.account_is_approved(auth.uid())) WITH CHECK(user_id=auth.uid() AND public.account_is_approved(auth.uid()));
+CREATE INDEX quote_records_owner_date ON public.quote_records(user_id,date DESC);
+CREATE FUNCTION public.initialize_account() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN
+INSERT INTO public.profiles(id,email) VALUES(new.id,coalesce(new.email,'')) ON CONFLICT(id) DO UPDATE SET email=excluded.email;
+INSERT INTO public.account_access(user_id) VALUES(new.id) ON CONFLICT DO NOTHING;
+IF new.email_confirmed_at IS NOT NULL AND lower(new.email)='ayingkaora@163.com' THEN
+INSERT INTO public.user_roles(user_id,role) VALUES(new.id,'admin') ON CONFLICT DO NOTHING;
+UPDATE public.account_access SET approved=true WHERE user_id=new.id;
+END IF; RETURN new; END $$;
+CREATE TRIGGER initialize_account_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.initialize_account();
+CREATE TRIGGER initialize_account_verified AFTER UPDATE OF email_confirmed_at ON auth.users FOR EACH ROW EXECUTE FUNCTION public.initialize_account();
+INSERT INTO public.profiles(id,email) SELECT id,coalesce(email,'') FROM auth.users ON CONFLICT DO NOTHING;
+INSERT INTO public.account_access(user_id,approved) SELECT id,email_confirmed_at IS NOT NULL AND lower(email)='ayingkaora@163.com' FROM auth.users ON CONFLICT DO NOTHING;
+INSERT INTO public.user_roles(user_id,role) SELECT id,'admin'::public.app_role FROM auth.users WHERE email_confirmed_at IS NOT NULL AND lower(email)='ayingkaora@163.com' ON CONFLICT DO NOTHING;
