@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const quoteSchema = z.object({
   company: z.string(),
   currency: z.string(),
+  quotationDate: z.string().optional().describe('Quotation date from the document, empty if missing; never use the current date'),
   products: z.array(z.object({ name: z.string(), specification: z.string(), quantity: z.number().nullable(), unitPrice: z.number().nullable(), total: z.number().nullable() })),
   notes: z.array(z.string()),
 });

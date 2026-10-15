@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { downloadQuote, makeQuoteExcel } from '@/lib/export-quote';
 import { priceWarnings } from '@/lib/quote-history';
 
-export const Route = createFileRoute('/result')({
+export const Route = createFileRoute('/_authenticated/result')({
   head: () => ({ meta: [{ title: '整理结果 · AyingAI' }, { name: 'description', content: '核对客户、产品与金额，下载报价 Excel 或保存到本机历史。' }, { property: 'og:title', content: '整理结果 · AyingAI' }, { property: 'og:description', content: '查看并核对报价单整理结果。' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }),
   component: Result,
 });

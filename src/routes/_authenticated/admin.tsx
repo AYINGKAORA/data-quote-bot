@@ -1,0 +1,10 @@
+import {createFileRoute} from '@tanstack/react-router';
+import {useQuery} from '@tanstack/react-query';
+import {useServerFn} from '@tanstack/react-start';
+import {useState} from 'react';
+import {AyingShell,useLanguage} from '@/components/aying-shell';
+import {useAccount} from '@/components/account-context';
+import {Button} from '@/components/ui/button';
+import {listAccounts,approveAccount} from '@/lib/account.functions';
+export const Route=createFileRoute('/_authenticated/admin')({head:()=>({meta:[{title:'Доступ пользователей · AyingAI'},{name:'description',content:'Одобрение доступа к AyingAI.'},{property:'og:title',content:'Доступ пользователей · AyingAI'},{property:'og:description',content:'Управление доступом к рабочему пространству.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:Admin});
+function Admin(){const {account,user}=useAccount(),{language}=useLanguage(),zh=language==='zh',fetch=useServerFn(listAccounts),approve=useServerFn(approveAccount),[error,setError]=useState(''),[busy,setBusy]=useState('');const query=useQuery({queryKey:['accounts'],queryFn:()=>fetch(),enabled:!!account?.admin});return <AyingShell><main className="content-main"><h1 className="page-title">{zh?'账号开通':'Управление доступом'}</h1>{!account?.admin?<p className="privacy-note">{zh?'仅管理员可访问':'Только для администратора'}</p>:<div className="history-list">{query.data?.map(row=>{const approved=row.account_access?.approved;return <div className="history-item" key={row.id}><div><div><h2>{row.email}</h2><p>{approved?(zh?'已开通':'Доступ открыт'):(zh?'等待开通':'Ожидает одобрения')}</p></div></div><Button variant={approved?'outline':'default'} disabled={row.id===user?.id||busy===row.id} onClick={async()=>{setBusy(row.id);setError('');try{await approve({data:{id:row.id,approved:!approved}});await query.refetch();}catch{setError(zh?'操作失败':'Не удалось изменить доступ');}finally{setBusy('');}}}>{approved?(zh?'停用':'Закрыть'):(zh?'开通':'Одобрить')}</Button></div>;})}</div>}{(error||query.error)&&<p role="alert" className="error-message">{error||'Не удалось загрузить пользователей / 无法读取用户'}</p>}</main></AyingShell>;}
