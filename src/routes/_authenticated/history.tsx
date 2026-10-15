@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowUpRight, FileText, History as HistoryIcon, Loader2, Plu
 import { AyingShell, useLanguage } from '@/components/aying-shell';
 import { useWorkspace } from '@/components/quote-workspace';
 import { Button } from '@/components/ui/button';
-export const Route = createFileRoute('/history')({
+export const Route = createFileRoute('/_authenticated/history')({
   head: () => ({ meta: [{ title: '历史记录 · AyingAI' }, { name: 'description', content: '按时间查看本机保存的客户报价记录。' }, { property: 'og:title', content: '历史记录 · AyingAI' }, { property: 'og:description', content: '重新查看保存的报价单与 Excel 数据。' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }),
   component: History,
 });
