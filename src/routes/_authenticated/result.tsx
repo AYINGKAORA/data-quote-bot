@@ -20,8 +20,7 @@ function Result() {
   const saved = !!active?.saved || records.some(record => record.id === active?.id && record.saved);
   async function exportExcel() {
     if (!allowed) { request('download'); return; }
-    if (!allowed) return <AyingShell><main className="content-main empty-state"><h1>{zh?'等待管理员开通':'Ожидает одобрения'}</h1><Button onClick={()=>request('view')}>{zh?'查看账号状态':'Статус аккаунта'}</Button></main></AyingShell>;
-  if (!active) return;
+    if (!active) return;
     setExporting(true); setError('');
     try { downloadQuote(await makeQuoteExcel(active.quote, language), `AyingAI-${active.quote.company.replace(/[^\p{L}\p{N} -]/gu, '').slice(0, 70) || 'quotation'}.xlsx`); }
     catch { setError(zh ? 'Excel 导出失败，请重试。' : 'Ошибка экспорта Excel. Попробуйте ещё раз.'); }
