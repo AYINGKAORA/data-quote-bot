@@ -6,7 +6,9 @@ import {useAccount} from './account-context';
 import {useLanguage} from './aying-shell';
 import {supabase} from '@/integrations/supabase/client';
 import {CODE_RESEND_SECONDS} from '@/lib/account-policy';
+import {useNavigate,useLocation} from '@tanstack/react-router';
 export function AuthModal(){
+ const navigate=useNavigate(),location=useLocation();
  const {prompt,close,user,account,refresh,error:accountError}=useAccount(),{language}=useLanguage(),zh=language==='zh';
  const [tab,setTab]=useState<'login'|'signup'>('login'),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[code,setCode]=useState(''),[sentEmail,setSentEmail]=useState(''),[seconds,setSeconds]=useState(0),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState('');
  useEffect(()=>{if(seconds<=0)return;const timer=setTimeout(()=>setSeconds(s=>s-1),1000);return ()=>clearTimeout(timer);},[seconds]);
